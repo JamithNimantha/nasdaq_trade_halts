@@ -1,0 +1,15 @@
+version: "3.7"
+services:
+  nasdaq-postgresql:
+    image: postgres:9-alpine
+    environment:
+      - POSTGRES_PASSWORD=Beth22Duke
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=iqfeed
+    ports:
+      - 5432:5432
+    networks:
+      - nasdaq-network
+networks:
+  nasdaq-network:
+    driver: bridge

@@ -1,0 +1,26 @@
+Value Name,Value
+Check Frequency in Minutes,3
+Database Host,localhost
+User Name,postgres
+Password,Beth22Duke
+Database,iqfeed
+News_Excel_File.xlsx Location,I:\investment\1_ShortCuts\Python_Programs_New\Latest_Used_Executables\FinViz\Data\ForNewsAndTD\News_Excel_File.xlsx
+Halts.csv Location,Data\Halts.csv
+Email SMTP Server Name / IP Address,192.168.68.204
+Email SMTP Server Port,25
+Email SMTP ID,send@vj.loc
+Email SMTP Password,123456
+Require logon using Secure Password Authentication (SPA),No
+Use following type of Encrypted Connection,None
+Email TO Email ID,rec@vj.loc
+Minimum Volume in Thousands,100
+News_Excel_File.xlsx Column Number for Volume in Thousands,12
+News_Excel_File.xlsx Column Number for Float Short,20
+News_Excel_File.xlsx Column Number for Days,19
+News_Excel_File.xlsx Column Number for Market Cap in Millions,6
+News_Excel_File.xlsx Column Number for Price,34
+News_Excel_File.xlsx Column Number for Label,2
+News_Excel_File.xlsx Column Number for Industry,4
+News_Excel_File.xlsx Column Number for OPT,32
+News_Excel_File.xlsx Column Number for Cash Burn Mnth,33
+Time to Stop,8:00 PM

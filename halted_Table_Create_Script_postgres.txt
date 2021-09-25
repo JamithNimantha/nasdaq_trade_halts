@@ -1,0 +1,21 @@
+-- Table: public.halts
+
+-- DROP TABLE public.halts;
+
+CREATE TABLE public.halts
+(
+    halt_date date NOT NULL,
+    halt_time time without time zone NOT NULL,
+    symbol character varying(10) COLLATE pg_catalog."default" NOT NULL,
+    market character varying(10) COLLATE pg_catalog."default",
+    code character varying(10) COLLATE pg_catalog."default",
+    resume_date date,
+    resume_quote_time time without time zone,
+    resume_trade_time time without time zone,
+    CONSTRAINT halts_pkey PRIMARY KEY (halt_date, halt_time, symbol)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public.halts
+    OWNER to postgres;

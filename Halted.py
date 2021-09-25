@@ -1,16 +1,8 @@
 # import libraries
-
-from datetime import datetime
+import os
 
 try:
-    from selenium import webdriver
     import time
-
-    # Firefox options
-    from selenium.webdriver.firefox.options import Options
-    # Un-Comment this when using the chromedriver
-    # from selenium.webdriver.chrome.options import Options
-    from selenium.common.exceptions import NoSuchElementException
     import psycopg2
     import csv
     import datetime as dt
@@ -19,6 +11,7 @@ try:
     from email.mime.text import MIMEText
     from datetime import date
     import xlrd
+    import feedparser
 
 except Exception as e:
     print(e)
@@ -32,42 +25,28 @@ def getData():
         [dictionary] : A dictionary containing data from the the website
     """
 
-    # Path for chromedriver
-    # path = 'C:\Windows\chromedriver.exe'
+    url = 'http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts'
 
-    # Path for geckodriver
-    path = "C:\Windows\geckodriver.exe"
-    url = 'https://nasdaqtrader.com/Trader.aspx?id=TradeHalts'
+    data = {'Halt Date': [], 'Halt Time': [], 'Issue Symbol': [],
+            'Issue Name': [], 'Market': [],
+            'Reason Codes': [], 'Pause Threshold Price': [], 'Resumption Date': [],
+            'Resumption Quote Time': [], 'Resumption Trade Time': []}
 
-    # Chromedriver settings
-    # option = Options()
-    # option.add_argument("--disable-gpu")
-    # option.add_argument("--headless")
-    # driver = webdriver.Chrome(executable_path = path, options= option)
+    feed = feedparser.parse(url)
 
-    # Firefox settings
-    options = Options()
-    options.headless = True
-    driver = webdriver.Firefox(options=options, executable_path=path)
+    print(f'Found {len(feed.entries)} entries!')
 
-    driver.get(url)
-
-    # Data to be stored in a dictionary
-    data = {}
-
-    # Table Rows
-    tr = driver.find_elements_by_tag_name('tr')
-    # Table headings
-    th = driver.find_elements_by_tag_name('th')
-
-    for heading in th:
-        data[heading.text] = []
-
-    for tc in tr[3:-1]:
-        for count, x in enumerate(tc.find_elements_by_tag_name('td')):
-            data[th[count].text].append(x.text)
-
-    driver.quit()
+    for entry in feed.entries:
+        data['Halt Date'].append(entry.ndaq_haltdate)
+        data['Halt Time'].append(entry.ndaq_halttime)
+        data['Issue Symbol'].append(entry.ndaq_issuesymbol)
+        data['Issue Name'].append(entry.ndaq_issuename)
+        data['Market'].append(entry.ndaq_market)
+        data['Reason Codes'].append(entry.ndaq_reasoncode)
+        data['Pause Threshold Price'].append(entry.ndaq_pausethresholdprice)
+        data['Resumption Date'].append(entry.ndaq_resumptiondate)
+        data['Resumption Quote Time'].append(entry.ndaq_resumptionquotetime)
+        data['Resumption Trade Time'].append(entry.ndaq_resumptiontradetime)
 
     return data
 
@@ -80,7 +59,7 @@ def database():
     """
 
     # Read Control.csv
-    csv_data = dict(csv.reader(open('Control\Control.csv')))
+    csv_data = dict(csv.reader(open(f'Control{os.sep}Control.csv')))
 
     # Assign values from control.csv
     database = csv_data["Database"]
@@ -106,7 +85,7 @@ def ReadExcel(symbol):
     """
 
     # Read control.csv
-    control = dict(csv.reader(open('Control\Control.csv')))
+    control = dict(csv.reader(open(f'Control{os.sep}Control.csv')))
 
     # Getting column numbers from control.csv
     vol, flt_srt, days, mcap, price = (int(control['News_Excel_File.xlsx Column Number for Volume in Thousands']) - 1,
@@ -148,7 +127,7 @@ def ReadExcelMore(symbol):
     """
 
     # Read control.csv
-    control = dict(csv.reader(open('Control\Control.csv')))
+    control = dict(csv.reader(open(f'Control{os.sep}Control.csv')))
 
     # Getting column numbers from control.csv
     label, ind, opt, cashburn = (int(control['News_Excel_File.xlsx Column Number for Label']) - 1,
@@ -166,7 +145,8 @@ def ReadExcelMore(symbol):
         # If symbol is found tuple is returned with values from News Excel
         if symbol == key1.value:
             content = (
-            wb.cell(ro, label).value, wb.cell(ro, ind).value, wb.cell(ro, opt).value, int(wb.cell(ro, cashburn).value))
+                wb.cell(ro, label).value, wb.cell(ro, ind).value, wb.cell(ro, opt).value,
+                int(wb.cell(ro, cashburn).value))
             break
 
         # Else, tuple is returned with NA values
@@ -188,7 +168,7 @@ def updateExcel(data, vol, flt_sht, days, price, mcap):
         mcap (int): M cap from news excel
     """
 
-    control = dict(csv.reader(open('Control\Control.csv')))
+    control = dict(csv.reader(open(f'Control{os.sep}Control.csv')))
     content = list(csv.reader(open(f'{control["Halts.csv Location"]}')))
 
     to_edit = [str(data['Halt Date']), data['Halt Time'],
@@ -218,7 +198,7 @@ def updateExcel(data, vol, flt_sht, days, price, mcap):
 
 def checks(data):
     cursor = database()
-    control = dict(csv.reader(open('Control\Control.csv')))
+    control = dict(csv.reader(open(f'Control{os.sep}Control.csv')))
 
     # Iterate through all the rows
     for count, symbol in enumerate(data['Issue Symbol']):
@@ -230,10 +210,10 @@ def checks(data):
         vol, flt_srt, days, mcap, price = ReadExcel(symbol)
 
         HaltDate, HaltTime, Symbol, Market, IssueName, ReasonCode, ThresholdPrice, ResumptionDate, ResumptionQuoteTime, ResumptionTradeTime = (
-        data['Halt Date'][count], data['Halt Time'][count],
-        data['Issue Symbol'][count], data['Market'][count], data['Issue Name'], data['Reason Codes'][count],
-        data['Pause Threshold Price'][count],
-        data['Resumption Date'][count], data['Resumption Quote Time'][count], data['Resumption Trade Time'][count])
+            data['Halt Date'][count], data['Halt Time'][count],
+            data['Issue Symbol'][count], data['Market'][count], data['Issue Name'], data['Reason Codes'][count],
+            data['Pause Threshold Price'][count],
+            data['Resumption Date'][count], data['Resumption Quote Time'][count], data['Resumption Trade Time'][count])
 
         # Halt Date for the row
         HaltDate = dt.datetime.strptime(HaltDate, "%m/%d/%Y").date()
@@ -539,7 +519,7 @@ ORDER BY timestamp DESC
 
 
 while True:
-    control = dict(csv.reader(open('Control\Control.csv')))
+    control = dict(csv.reader(open(f'Control{os.sep}Control.csv')))
     if int(dt.datetime.now().strftime("%H")) == int(
             dt.datetime.strptime(control['Time to Stop'], '%I:%S %p').strftime("%H")):
         break
@@ -560,6 +540,3 @@ while True:
 
         print('Exiting')
         break
-
-    except NoSuchElementException:
-        continue

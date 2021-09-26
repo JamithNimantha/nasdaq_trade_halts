@@ -250,8 +250,9 @@ def checks(data):
                         print('Checks not passed for', symbol)
 
                 # If vol is NA
-                except TypeError:
-                    SendMail(to_send)
+                except TypeError as e:
+                    # SendMail(to_send) commented as This sends an email if the Vol is NA
+                    print(e)
 
                 # Convert to datetime object
                 ResumptionDate = dt.datetime.strptime(ResumptionDate, "%m/%d/%Y").date()

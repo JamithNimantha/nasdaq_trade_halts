@@ -1,7 +1,8 @@
 # import libraries
-import os
 
 try:
+    import os
+    import pause as pause
     import time
     import psycopg2
     import csv
@@ -518,15 +519,15 @@ ORDER BY timestamp DESC
         print("Email couldn't be sent")
 
 
+control = dict(csv.reader(open(f'Control{os.sep}Control.csv')))
+loop_time = int(control['Check Frequency in Minutes'])
+
 while True:
-    control = dict(csv.reader(open(f'Control{os.sep}Control.csv')))
     if int(dt.datetime.now().strftime("%H")) == int(
             dt.datetime.strptime(control['Time to Stop'], '%I:%S %p').strftime("%H")):
         break
-
     try:
 
-        loop_time = int(control['Check Frequency in Minutes']) * 60
         data = getData()
 
         try:
@@ -534,7 +535,9 @@ while True:
         except KeyError:
             pass
 
-        time.sleep(loop_time)
+        retry_time = dt.datetime.now() + dt.timedelta(minutes=loop_time)
+        print(f'Retrying in {retry_time.strftime("%H:%M")} ...')
+        pause.until(retry_time)
 
     except KeyboardInterrupt:
 

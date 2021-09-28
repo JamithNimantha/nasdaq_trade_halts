@@ -157,6 +157,83 @@ def ReadExcelMore(symbol):
     return content
 
 
+def ReadExcelAll(symbol):
+    """Function to get ALL NewsExcel data by symbol
+
+    Args:
+        symbol (string): Symbol for a particular row
+
+    Returns:
+        [Tuple]: Returns ALL
+    """
+
+    # Read control.csv
+    control = dict(csv.reader(open(f'Control{os.sep}Control.csv')))
+
+    # Getting column numbers from control.csv
+    dir, country, stop_diff, from_n_open, perth_week, perf_month, perf_quart, prod_m, n_q1_est_n_eps, \
+    est_n_earnm, n_sales_m, n_q_1_esp, chg_nq1_nesp_4_wk, ins_own, ins_trans, inst_trans, ipo_date, earn_date, trg_prc, \
+    zacks_rank, z_rank_chg, n_q2_n_eps, n_f1_n_eps, nf1_n_sales_m, p_e, fwd_p_e, p_g_e, p_f_c_f, n_e_p_s_5_yrs, one_min_vol = \
+        (2, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37, 38,
+         39)
+
+    # Loading the excel file
+    wb_load = xlrd.open_workbook(f"{control['News_Excel_File.xlsx Location']}")
+    wb = wb_load.sheet_by_index(0)
+
+    for ro in range(0, wb.nrows):
+        key1 = wb.cell(ro, 0)
+        # If symbol is found tuple is returned with values from News Excel
+        if symbol == key1.value:
+            content = (
+                wb.cell(ro, dir).value,
+                wb.cell(ro, country).value,
+                wb.cell(ro, stop_diff).value,
+                wb.cell(ro, from_n_open).value,
+                wb.cell(ro, perth_week).value,
+                wb.cell(ro, perf_month).value,
+                wb.cell(ro, perf_quart).value,
+                wb.cell(ro, prod_m).value,
+                wb.cell(ro, n_q1_est_n_eps).value,
+                wb.cell(ro, est_n_earnm).value,
+                wb.cell(ro, n_sales_m).value,
+                wb.cell(ro, n_q_1_esp).value,
+                wb.cell(ro, chg_nq1_nesp_4_wk).value,
+                wb.cell(ro, ins_own).value,
+                wb.cell(ro, ins_trans).value,
+                wb.cell(ro, inst_trans).value,
+                get_date(wb.cell(ro, ipo_date).value, wb_load.datemode),
+                get_date(wb.cell(ro, earn_date).value, wb_load.datemode),
+                wb.cell(ro, trg_prc).value,
+                wb.cell(ro, zacks_rank).value,
+                wb.cell(ro, z_rank_chg).value,
+                wb.cell(ro, n_q2_n_eps).value,
+                wb.cell(ro, n_f1_n_eps).value,
+                wb.cell(ro, nf1_n_sales_m).value,
+                wb.cell(ro, p_e).value,
+                wb.cell(ro, fwd_p_e).value,
+                wb.cell(ro, p_g_e).value,
+                wb.cell(ro, p_f_c_f).value,
+                wb.cell(ro, n_e_p_s_5_yrs).value,
+                wb.cell(ro, one_min_vol).value)
+
+            break
+
+        # Else, tuple is returned with NA values
+        else:
+            content = ('NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA',
+                       'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA')
+
+    return content
+
+
+def get_date(value, datemod):
+    try:
+        return dt.datetime(*xlrd.xldate_as_tuple(value, datemod)).strftime('%m/%d/%Y')
+    except TypeError:
+        return value
+
+
 def updateExcel(data, vol, flt_sht, days, price, mcap):
     """Function to update the CSV file 
 
@@ -349,7 +426,7 @@ ORDER BY timestamp DESC
     else:
         timestamp, headline, url = news[0][0], news[0][1], news[0][2]
 
-    control = dict(csv.reader(open('Control\Control.csv')))
+    control = dict(csv.reader(open(f'Control{os.sep}Control.csv')))
 
     msg = MIMEMultipart()
     msg['From'] = control['Email SMTP ID']
@@ -364,6 +441,11 @@ ORDER BY timestamp DESC
     if vol != 'NA':
 
         label, ind, opt, cashburn = ReadExcelMore(data['Issue Symbol'])
+
+        dir_, country, stop_diff, from_n_open, perth_week, perf_month, perf_quart, prod_m, n_q1_est_n_eps, \
+        est_n_earnm, n_sales_m, n_q_1_esp, chg_nq1_nesp_4_wk, ins_own, ins_trans, inst_trans, ipo_date, earn_date, trg_prc, \
+        zacks_rank, z_rank_chg, n_q2_n_eps, n_f1_n_eps, nf1_n_sales_m, p_e, fwd_p_e, p_g_e, p_f_c_f, n_e_p_s_5_yrs, one_min_vol = \
+            ReadExcelAll(data['Issue Symbol'])
 
         try:
             flt_srt = float('%.2f' % float(flt_srt))
@@ -381,7 +463,37 @@ ORDER BY timestamp DESC
         <table cellspacing="1.5" border="1">
         <tr>"""
 
-        table_content = ['Time', 'Sym', 'Reason Code', 'Res DT', 'Res QT TM', 'Res TRD TM', 'Vol', 'Flt Sht', 'Days',
+        table_content = ['Time', 'Sym', 'Reason Code', 'Res DT', 'Res QT TM', 'Res TRD TM',
+                         'Dir',
+                         'Country',
+                         'Stop Diff',
+                         'from nOpen',
+                         'Perf Week',
+                         'Perf Month',
+                         'Perf Quart',
+                         'Prod M',
+                         'nQ1 Est nEPS',
+                         'nQ1 Est nEarn M',
+                         'nQ1 nSales M',
+                         'nQ1 ESP',
+                         'Chg nQ1 nEPS 4 Wk',
+                         'Ins Own',
+                         'Ins Trans',
+                         'Inst Trans',
+                         'IPO Date',
+                         'Earn Date',
+                         'Trg Prc %',
+                         'Zacks Rank',
+                         'ZRank Chg',
+                         'nQ2 nEPS',
+                         'nF1 nEPS',
+                         'nF1 nSales M',
+                         'P/E',
+                         'Fwd P/E',
+                         'PEG',
+                         'P/ FCF',
+                         'nEPS 5 Yr',
+                         'Min Vol', 'Vol', 'Flt Sht', 'Days',
                          'Price', 'M cap M', 'Label', 'Industry', 'OPT', 'Cash Burn Mnth']
         for key in table_content:
             html += f""" <th>{key}</th>"""
@@ -404,6 +516,112 @@ ORDER BY timestamp DESC
         html += f"""<td>{data['Resumption Quote Time']}</td>"""
 
         html += f"""<td>{data['Resumption Trade Time']}</td>"""
+
+        html += f"""<td>{dir_}</td>"""
+        html += f"""<td>{country}</td>"""
+        try:
+            html += f"""<td>${"{:.2f}".format(stop_diff)}</td>"""
+        except ValueError:
+            html += f"""<td>${stop_diff}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(from_n_open)}</td>"""
+        except ValueError:
+            html += f"""<td>{from_n_open}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(perth_week)}</td>"""
+        except ValueError:
+            html += f"""<td>{perth_week}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(perf_month)}</td>"""
+        except ValueError:
+            html += f"""<td>{perf_month}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(perf_quart)}</td>"""
+        except ValueError:
+            html += f"""<td>{perf_quart}</td>"""
+
+        try:
+            html += f"""<td>${"{:.2f}".format(prod_m)}</td>"""
+        except ValueError:
+            html += f"""<td>${prod_m}</td>"""
+
+        try:
+            html += f"""<td>${"{:.2f}".format(n_q1_est_n_eps)}</td>"""
+        except ValueError:
+            html += f"""<td>${n_q1_est_n_eps}</td>"""
+
+        try:
+            html += f"""<td>${"{:.2f}".format(est_n_earnm)}</td>"""
+        except ValueError:
+            html += f"""<td>${est_n_earnm}</td>"""
+
+        try:
+            html += f"""<td>${"{:.2f}".format(n_sales_m)}</td>"""
+        except ValueError:
+            html += f"""<td>${n_sales_m}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(n_q_1_esp)}</td>"""
+        except ValueError:
+            html += f"""<td>{n_q_1_esp}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(chg_nq1_nesp_4_wk)}</td>"""
+        except ValueError:
+            html += f"""<td>{chg_nq1_nesp_4_wk}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(ins_own)}</td>"""
+        except ValueError:
+            html += f"""<td>{ins_own}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(ins_trans)}</td>"""
+        except ValueError:
+            html += f"""<td>{ins_trans}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(inst_trans)}</td>"""
+        except ValueError:
+            html += f"""<td>{inst_trans}</td>"""
+
+        html += f"""<td>{ipo_date}</td>"""
+        html += f"""<td>{earn_date}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(trg_prc)}</td>"""
+        except ValueError:
+            html += f"""<td>{trg_prc}</td>"""
+
+        html += f"""<td>{zacks_rank}</td>"""
+        html += f"""<td>{z_rank_chg}</td>"""
+        html += f"""<td>{n_q2_n_eps}</td>"""
+
+        try:
+            html += f"""<td>${"{:.2f}".format(n_f1_n_eps)}</td>"""
+        except ValueError:
+            html += f"""<td>${n_f1_n_eps}</td>"""
+
+        try:
+            html += f"""<td>${"{:.2f}".format(nf1_n_sales_m)}</td>"""
+        except ValueError:
+            html += f"""<td>${nf1_n_sales_m}</td>"""
+
+        html += f"""<td>{p_e}</td>"""
+        html += f"""<td>{fwd_p_e}</td>"""
+        html += f"""<td>{p_g_e}</td>"""
+        html += f"""<td>{p_f_c_f}</td>"""
+
+        try:
+            html += f"""<td>{"{:.2%}".format(n_e_p_s_5_yrs)}</td>"""
+        except ValueError:
+            html += f"""<td>{n_e_p_s_5_yrs}</td>"""
+
+        html += f"""<td>{one_min_vol}</td>"""
 
         if int(vol) <= 400:
             html += f"""<td style='background-color: red;'>{vol}</td>"""

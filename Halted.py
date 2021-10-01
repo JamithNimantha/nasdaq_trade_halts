@@ -495,7 +495,7 @@ ORDER BY timestamp DESC
                          'Min Vol', 'Vol', 'Flt Sht', 'Days',
                          'Price', 'M cap M', 'Label', 'Industry', 'OPT', 'Cash Burn Mnth']
         for key in table_content:
-            html += f""" <th>{key}</th>"""
+            html += f""" <th style="white-space:nowrap">{key}</th>"""
 
         html += '</tr>  <tr>'
 

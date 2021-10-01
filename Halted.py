@@ -457,8 +457,7 @@ ORDER BY timestamp DESC
         # Html structure
         html = f"""
         <p>
-        {str(timestamp)}    {headline}
-        {url}
+        {str(timestamp)}    <a href="http://{url}">{headline}</a>
         </p>
         <table cellspacing="1.5" border="1">
         <tr>"""

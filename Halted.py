@@ -457,46 +457,48 @@ ORDER BY timestamp DESC
         else:
             subject = f""":Nasdaq Halt: {data['Issue Symbol']} :Res; {data['Resumption Trade Time']} :Code; {ReasonCode} :Vol; {vol} :Flt Sht; {flt_srt} :Days; {days} :McapM; ${mcap} :Price; ${price})"""
 
+        news_para = f"""<p>
+        {str(timestamp)}    <a href="http://{url}">{headline}</a>
+        </p>"""
+
         # Html structure
         html = f"""
-        <p>
-        {str(timestamp)}    <a href="http://{url}">{headline}</a>
-        </p>
+        {news_para if headline != 'NA' else ''}
         <table cellspacing="1.5" border="1">
         <tr>"""
 
         table_content = ['Time', 'Sym', 'Reason Code', 'Res DT', 'Res QT TM', 'Res TRD TM',
-                         'Dir',
-                         'Country',
-                         'Stop Diff',
-                         'from nOpen',
-                         'Perf Week',
-                         'Perf Month',
-                         'Perf Quart',
-                         'Prod M',
-                         'nQ1 Est nEPS',
-                         'nQ1 Est nEarn M',
-                         'nQ1 nSales M',
-                         'nQ1 ESP',
-                         'Chg nQ1 nEPS 4 Wk',
-                         'Ins Own',
-                         'Ins Trans',
-                         'Inst Trans',
-                         'IPO Date',
-                         'Earn Date',
-                         'Trg Prc %',
-                         'Zacks Rank',
-                         'ZRank Chg',
-                         'nQ2 nEPS',
-                         'nF1 nEPS',
-                         'nF1 nSales M',
-                         'P/E',
-                         'Fwd P/E',
-                         'PEG',
-                         'P/ FCF',
-                         'nEPS 5 Yr',
+                         '3 Dir',
+                         '5 Country',
+                         '7 Stop Diff',
+                         '8 from nOpen',
+                         '9 Perf Week',
+                         '10 Perf Month',
+                         '11 Perf Quart',
+                         '13 Prod M',
+                         '14 nQ1 Est nEPS',
+                         '15 nQ1 Est nEarn M',
+                         '16 nQ1 nSales M',
+                         '17 nQ1 ESP',
+                         '18 Chg nQ1 nEPS 4 Wk',
+                         '21 Ins Own',
+                         '22 Ins Trans',
+                         '23 Inst Trans',
+                         '24 IPO Date',
+                         '25 Earn Date',
+                         '26 Trg Prc %',
+                         '27 Zacks Rank',
+                         '28 ZRank Chg',
+                         '29 nQ2 nEPS',
+                         '30 nF1 nEPS',
+                         '31 nF1 nSales M',
+                         '35 P/E',
+                         '36 Fwd P/E',
+                         '37 PEG',
+                         '38 P/ FCF',
+                         '39 nEPS 5 Yr',
                          'Min Vol', 'Vol', 'Flt Sht', 'Days',
-                         'Price', 'M cap M', 'Label', 'Industry', 'OPT', 'Cash Burn Mnth']
+                         'Price', 'M cap M', '2 Label', '4 Industry', '32 OPT', '33 Cash Burn Mnth']
         for key in table_content:
             html += f""" <th style="white-space:nowrap">{key}</th>"""
 

@@ -452,7 +452,10 @@ ORDER BY timestamp DESC
         except ValueError:
             flt_srt = 0
 
-        subject = f""":Nasdaq Halt: {data['Issue Symbol']} :NEWS; {headline} :Res; {data['Resumption Trade Time']} :Code; {ReasonCode} :Vol; {vol} :Flt Sht; {flt_srt} :Days; {days} :McapM; ${mcap} :Price; ${price})"""
+        if headline != 'NA':
+            subject = f""":Nasdaq Halt: {data['Issue Symbol']} :NEWS; {headline} :Res; {data['Resumption Trade Time']} :Code; {ReasonCode} :Vol; {vol} :Flt Sht; {flt_srt} :Days; {days} :McapM; ${mcap} :Price; ${price})"""
+        else:
+            subject = f""":Nasdaq Halt: {data['Issue Symbol']} :Res; {data['Resumption Trade Time']} :Code; {ReasonCode} :Vol; {vol} :Flt Sht; {flt_srt} :Days; {days} :McapM; ${mcap} :Price; ${price})"""
 
         # Html structure
         html = f"""
